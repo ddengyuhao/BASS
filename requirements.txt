@@ -1,25 +1,19 @@
-# Deep Learning Core
-torch>=2.0.0
-torchvision
+torch>=2.1.0
 numpy
+pillow
+tqdm
 
-# Large Model Ecosystem (HuggingFace, Qwen, LLaVA)
-transformers>=4.37.0
+# LMM backbones and CLIP
+transformers>=4.49.0
 accelerate>=0.26.0
-datasets
 qwen-vl-utils
 
-# Video Processing & Loading
-decord>=0.6.0
-opencv-python
-pillow
-scenedetect
-
-# Specialized Shot Detection
-transnetv2-pytorch
-
-# Utilities & CLIP Dependencies
-tqdm
-ftfy
-regex
+# Datasets
+datasets
+pyarrow
 yt-dlp
+
+# Video decoding and segmentation
+decord>=0.6.0
+transnetv2-pytorch
+scenedetect[opencv]>=0.6

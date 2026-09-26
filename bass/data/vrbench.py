@@ -1,34 +1,57 @@
 import os
 import json
-from torch.utils.data import Dataset
 
-class VRBenchDataset(Dataset):
+from .base_dataset import BaseDataset
+
+
+class VRBenchDataset(BaseDataset):
+    """
+    VRBench (https://huggingface.co/datasets/OpenGVLab/VRBench): 1,010 long narrative
+    videos with multi-step reasoning multiple-choice questions.
+
+    Expected structure:
+        root_dir/
+            VRBench_eval.jsonl
+            videos/{video_id}.mp4      (extracted from v001_360p_zips)
+
+    Each line of VRBench_eval.jsonl describes one video; its "mcq" field maps
+    question keys (qa1, qa2, ...) to {"question", "options": {"A": ...}, "answer"}.
+    """
+
     def __init__(self, root_dir="./dataset/VRBench", split="test", **kwargs):
-        self.root_dir = root_dir
+        super().__init__(root_dir)
         self.video_dir = os.path.join(root_dir, "videos")
-        # Assuming standard JSONL or JSON annotation
-        self.samples = []
-        
-        # Mock loading logic - replace with actual VRBench logic
-        # For a formal project, ensure this matches the official VRBench format
-        ann_file = os.path.join(root_dir, "VRBench.json")
-        if os.path.exists(ann_file):
-            with open(ann_file, 'r') as f:
-                self.samples = json.load(f)
-        else:
-            print(f"⚠️ VRBench annotation not found at {ann_file}")
+        ann_file = os.path.join(root_dir, "VRBench_eval.jsonl")
+        if not os.path.exists(ann_file):
+            raise FileNotFoundError(f"VRBench annotation not found at {ann_file}")
 
-    def __len__(self):
-        return len(self.samples)
+        with open(ann_file, "r") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                item = json.loads(line)
+                vid = item["video_id"]
+                video_path = self.resolve_video([
+                    os.path.join(self.video_dir, f"{vid}.mp4"),
+                    os.path.join(self.video_dir, "v001", f"{vid}.mp4"),
+                    os.path.join(root_dir, item.get("video_path", "")),
+                ])
+                mcq = item.get("mcq") or {}
+                for key in sorted(mcq, key=self._qa_index):
+                    qa = mcq[key]
+                    opts = qa["options"]
+                    if isinstance(opts, dict):
+                        opts = [f"{k}. {opts[k]}" for k in sorted(opts)]
+                    self.samples.append({
+                        "id": f"{vid}_{key}",
+                        "video_path": video_path,
+                        "question": qa["question"],
+                        "options": list(opts),
+                        "answer": str(qa["answer"]).strip().upper()[:1],
+                    })
 
-    def __getitem__(self, idx):
-        item = self.samples[idx]
-        video_path = os.path.join(self.video_dir, item.get('video_name', ''))
-        
-        return {
-            "id": item.get('id', idx),
-            "video_path": video_path if os.path.exists(video_path) else None,
-            "question": item.get('question', ''),
-            "options": item.get('options', []),
-            "answer": item.get('answer', 'C')
-        }
+    @staticmethod
+    def _qa_index(key):
+        digits = "".join(c for c in key if c.isdigit())
+        return int(digits) if digits else 0

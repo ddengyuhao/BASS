@@ -1,74 +1,58 @@
 #!/bin/bash
+# Usage:
+#   bash scripts/run.sh [extra arguments passed to run_inference.py]
+# Configuration can be overridden through environment variables, e.g.
+#   DATASET=VRBench BACKBONE=Qwen2-VL-72B GPU_IDS="0 1 2 3" bash scripts/run.sh --lambda_param 0.5
 
-# ================= Configuration =================
-# Dataset: CinePile, VRBench, VideoMME
-DATASET="CinePile" 
+set -e
+cd "$(dirname "$0")/.."
 
-# Model: Qwen2.5-VL-7B, Qwen2-VL-72B, Video-LLaVA-7B
-BACKBONE="Qwen2.5-VL-7B"
+# Dataset: VideoMME, VRBench, CinePile
+DATASET=${DATASET:-VideoMME}
+# Backbone: Qwen2.5-VL-7B, Qwen2-VL-72B
+BACKBONE=${BACKBONE:-Qwen2.5-VL-7B}
+DATA_ROOT=${DATA_ROOT:-./dataset}
+TOKEN_BUDGET=${TOKEN_BUDGET:-8192}
+# Extra arguments are appended to the default output directory name, so that
+# different settings do not overwrite each other
+TAG=$(echo "$*" | sed 's/--//g' | tr -cs 'A-Za-z0-9.' '_' | sed -e 's/^_//' -e 's/_$//')
+OUTPUT_DIR=${OUTPUT_DIR:-./results/${DATASET}_${BACKBONE}_B${TOKEN_BUDGET}${TAG:+_$TAG}}
+GPU_IDS=(${GPU_IDS:-0 1 2 3})
 
-# Paths (Use absolute paths or relative to project root)
-DATA_ROOT="./dataset"
-OUTPUT_DIR="./experiments/${DATASET}_${BACKBONE}"
-
-# Optional: Local Model Paths (Leave empty to use HuggingFace)
-# MODEL_PATH="/path/to/your/Qwen2.5-VL-7B"
-# CLIP_PATH="/path/to/your/clip-vit-large-patch14"
-
-# Parameters
-GPU_IDS=(0 1 2 3) # GPUs to use
-NUM_GPUS=${#GPU_IDS[@]}
-TOKEN_BUDGET=8192
-# =================================================
-
-echo "🚀 Starting Inference on $DATASET with $BACKBONE"
-echo "   GPUs: ${GPU_IDS[*]} | Total Chunks: $NUM_GPUS"
+# Optional local checkpoints (HuggingFace ids are used otherwise)
+EXTRA_PATHS=()
+[ -n "$MODEL_PATH" ] && EXTRA_PATHS+=(--model_path "$MODEL_PATH")
+[ -n "$CLIP_PATH" ] && EXTRA_PATHS+=(--clip_path "$CLIP_PATH")
 
 mkdir -p "$OUTPUT_DIR"
 
+if [ "$BACKBONE" = "Qwen2-VL-72B" ]; then
+    # The 72B model is sharded across all listed GPUs in a single process
+    GROUPS_OF_GPUS=("$(IFS=,; echo "${GPU_IDS[*]}")")
+else
+    # One data chunk per GPU
+    GROUPS_OF_GPUS=("${GPU_IDS[@]}")
+fi
+NUM_CHUNKS=${#GROUPS_OF_GPUS[@]}
+
+echo "Dataset: $DATASET | Backbone: $BACKBONE | Budget: $TOKEN_BUDGET | Chunks: $NUM_CHUNKS"
+
 pids=()
-
-for ((i=0; i<NUM_GPUS; i++)); do
-    GPU_ID=${GPU_IDS[$i]}
-    
-    cmd="python run_inference.py \
-        --dataset $DATASET \
-        --backbone $BACKBONE \
-        --data_root $DATA_ROOT \
-        --output_dir $OUTPUT_DIR \
-        --num_chunks $NUM_GPUS \
-        --chunk_idx $i \
-        --token_budget $TOKEN_BUDGET"
-    
-    # Add optional paths if set
-    [ ! -z "$MODEL_PATH" ] && cmd="$cmd --model_path $MODEL_PATH"
-    [ ! -z "$CLIP_PATH" ] && cmd="$cmd --clip_path $CLIP_PATH"
-
-    echo "   > Running Chunk $i on GPU $GPU_ID..."
-    CUDA_VISIBLE_DEVICES=$GPU_ID $cmd > "$OUTPUT_DIR/log_gpu${GPU_ID}.txt" 2>&1 &
-    
+for ((i=0; i<NUM_CHUNKS; i++)); do
+    CUDA_VISIBLE_DEVICES=${GROUPS_OF_GPUS[$i]} python scripts/run_inference.py \
+        --dataset "$DATASET" \
+        --backbone "$BACKBONE" \
+        --data_root "$DATA_ROOT" \
+        --output_dir "$OUTPUT_DIR" \
+        --token_budget "$TOKEN_BUDGET" \
+        --num_chunks "$NUM_CHUNKS" \
+        --chunk_idx "$i" \
+        "${EXTRA_PATHS[@]}" "$@" > "$OUTPUT_DIR/log_chunk${i}.txt" 2>&1 &
     pids+=($!)
 done
 
-# Wait for all
 for pid in "${pids[@]}"; do
-    wait $pid
+    wait "$pid"
 done
 
-echo "✅ Inference Completed. Merging results..."
-
-# Merge Script
-python -c "
-import json, glob, os
-files = glob.glob('$OUTPUT_DIR/*_chunk*.json')
-all_data = []
-for f in files:
-    try:
-        with open(f) as fd: all_data.extend(json.load(fd))
-    except: print(f'Skipping broken file {f}')
-    
-out_path = os.path.join('$OUTPUT_DIR', 'final_merged.json')
-with open(out_path, 'w') as f:
-    json.dump(all_data, f, indent=2)
-print(f'Merged {len(all_data)} records to {out_path}')
-"
+python scripts/merge_results.py "$OUTPUT_DIR"
