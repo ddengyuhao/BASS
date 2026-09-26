@@ -45,8 +45,6 @@ class BASS(BaseMethod):
         self.vocab_size = getattr(args, 'vocab_size', 1024)
         self.frame_interval = getattr(args, 'frame_interval', 4.0)
         self.max_frames_per_event = getattr(args, 'max_frames_per_event', 4)
-        self.min_event_duration = getattr(args, 'min_event_duration', 0.5)
-        self.max_events = getattr(args, 'max_events', 800)
         self.segmentation = getattr(args, 'segmentation', 'transnetv2')
         self.edge_construction = getattr(args, 'edge_construction', 'index')
         self.uniform_word_weight = getattr(args, 'uniform_word_weight', False)
@@ -71,7 +69,9 @@ class BASS(BaseMethod):
 
         self._load_clip(args)
 
-        self.segmenter = build_segmenter(self.segmentation, device=str(self.device))
+        self.segmenter = build_segmenter(
+            self.segmentation, device=str(self.device),
+            boundary_dir=getattr(args, 'boundary_dir', None))
 
         self.executor = GraphGuidedExecutor(
             model,
@@ -94,29 +94,7 @@ class BASS(BaseMethod):
 
     def _detect_events(self, video_path):
         """Partitions the video into events with the configured segmenter."""
-        return self._normalize_events(self.segmenter(video_path))
-
-    def _normalize_events(self, events):
-        """
-        Keeps the events a partition of the video: very short shots are merged
-        into the preceding event, and if there are too many events, adjacent
-        events are merged pairwise.
-        """
-        events = sorted((float(s), float(e)) for s, e in events if e > s)
-        merged = []
-        for s, e in events:
-            if merged and (e - s) < self.min_event_duration:
-                merged[-1] = (merged[-1][0], e)
-            else:
-                merged.append((s, e))
-        if len(merged) > 1 and (merged[0][1] - merged[0][0]) < self.min_event_duration:
-            merged[1] = (merged[0][0], merged[1][1])
-            merged = merged[1:]
-
-        while len(merged) > self.max_events:
-            merged = [(merged[k][0], merged[min(k + 1, len(merged) - 1)][1])
-                      for k in range(0, len(merged), 2)]
-        return merged
+        return self.segmenter(video_path)
 
     def _num_frames(self, start, end):
         """m_i grows with the event duration, capped at max_frames_per_event."""

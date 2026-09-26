@@ -20,14 +20,15 @@ def parse_args():
     parser.add_argument("--output_dir", type=str, default="./results", help="Directory to save results")
 
     # --- Model Config ---
-    parser.add_argument("--method", type=str, default="BASS", choices=["BASS"])
-    parser.add_argument("--backbone", type=str, default="Qwen2.5-VL-7B", choices=["Qwen2.5-VL-7B", "Qwen2-VL-72B"], help="LMM backbone")
-    parser.add_argument("--model_path", type=str, default=None, help="Path to local LMM checkpoint")
+    parser.add_argument("--method", type=str, default="BASS", choices=["BASS", "Uniform"], help="BASS or the uniform-sampling baseline")
+    parser.add_argument("--backbone", type=str, default="Qwen2.5-VL-7B", choices=["Qwen2.5-VL-7B", "Qwen2-VL-72B", "GPT-4o", "Gemini-1.5-Pro"], help="LMM backbone")
+    parser.add_argument("--model_path", type=str, default=None, help="Path to local LMM checkpoint, or the model name for API backbones")
     parser.add_argument("--clip_path", type=str, default=None, help="Path to local CLIP model")
 
     # --- Offline indexing (Sec. 3) ---
-    parser.add_argument("--segmentation", type=str, default="transnetv2", choices=["transnetv2", "pyscenedetect", "uniform"], help="Temporal boundary detector used to partition videos into events")
+    parser.add_argument("--segmentation", type=str, default="transnetv2", choices=["transnetv2", "pyscenedetect", "uniform", "precomputed"], help="Temporal boundary detector used to partition videos into events")
     parser.add_argument("--edge_construction", type=str, default="index", choices=["index", "pairwise"], help="Semantic edges via inverted-index join or dense pairwise patch matching")
+    parser.add_argument("--boundary_dir", type=str, default=None, help="Directory of precomputed event boundaries (for --segmentation precomputed)")
     parser.add_argument("--uniform_word_weight", action="store_true", help="Use uniform visual-word weights instead of inverse-event-frequency weights")
     parser.add_argument("--delta", type=float, default=0.65, help="Semantic similarity threshold for semantic edges")
     parser.add_argument("--vocab_size", type=int, default=1024, help="Number of visual words for vector quantization")
@@ -63,6 +64,12 @@ def load_backbone(args):
     if args.backbone == "Qwen2-VL-72B":
         from bass.models.qwen2_vl_72b import Qwen2_VL_72B_Wrapper
         return Qwen2_VL_72B_Wrapper(model_path=args.model_path)
+    if args.backbone == "GPT-4o":
+        from bass.models.api_models import GPT4oWrapper
+        return GPT4oWrapper(model_name=args.model_path)
+    if args.backbone == "Gemini-1.5-Pro":
+        from bass.models.api_models import GeminiWrapper
+        return GeminiWrapper(model_name=args.model_path)
     raise ValueError(f"Backbone {args.backbone} not implemented.")
 
 
