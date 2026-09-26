@@ -30,7 +30,7 @@ Yuping Wang<sup>1</sup>, Aoqian Zhang<sup>1</sup>, Ye Yuan<sup>1</sup>, Chenglia
   <img src="assets/framework.png" alt="Overall framework of BASS" width="95%">
 </p>
 
-**TL;DR.** BASS treats a long video as a *queryable event graph* instead of a flat sequence of visual tokens. It builds a reusable graph index offline, selects a budget-feasible subgraph per query by maximizing a monotone submodular objective, and executes the query along verified graph relations. Under the same budget of 8,192 visual tokens, BASS reaches the highest average accuracy among the evaluated token-efficient methods, and it uses over 90% fewer visual tokens than full-sequence inference.
+BASS treats a long video as a *queryable event graph* instead of a flat sequence of visual tokens. It builds a reusable graph index offline, selects a budget-feasible subgraph per query by maximizing a monotone submodular objective, and executes the query along verified graph relations. Under the same budget of 8,192 visual tokens, BASS reaches the highest average accuracy among the evaluated token-efficient methods, and it uses over 90% fewer visual tokens than full-sequence inference.
 
 ## News
 
@@ -310,7 +310,3 @@ If you find BASS useful in your research, please consider citing:
 ## 🙏 Acknowledgements
 
 BASS builds on [Qwen2-VL / Qwen2.5-VL](https://github.com/QwenLM/Qwen2.5-VL), [CLIP](https://github.com/openai/CLIP), [TransNetV2](https://github.com/soCzech/TransNetV2), and [PySceneDetect](https://github.com/Breakthrough/PySceneDetect). We thank the authors of [Video-MME](https://github.com/BradyFU/Video-MME), [VRBench](https://huggingface.co/datasets/OpenGVLab/VRBench), and [CinePile](https://huggingface.co/datasets/tomg-group-umd/cinepile) for releasing their benchmarks.
-
-## 📬 Contact
-
-For questions, please open an issue or contact Yuhao Deng (dyh18@bit.edu.cn).
