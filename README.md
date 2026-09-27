@@ -75,10 +75,10 @@ Accuracy (%) of visual-token-efficient methods under a budget of **8,192 visual 
 | :--- | :--- | :---: | :---: |
 | FastV | Token reduction | 52.3 / 43.1 / 38.4 / 44.6 | 56.5 / 45.5 / 41.6 / 47.9 |
 | DyCoke | Token reduction | 51.8 / 47.2 / 37.1 / 45.4 | 57.9 / 46.8 / 39.8 / 48.2 |
-| VTR-VLM | Token reduction | 54.1 / 53.3 / 44.5 / 50.6 | 58.2 / 55.4 / 45.5 / 53.0 |
-| AdaReTaKe | Token reduction | 50.8 / 47.1 / 46.4 / 48.1 | 55.5 / 48.2 / 48.0 / 50.6 |
-| Q-Frame | Keyframe sampling | 53.5 / 48.5 / 40.7 / 47.6 | 62.0 / 52.1 / 41.9 / 52.0 |
-| Nar-KFC | Keyframe sampling | 56.7 / 53.5 / 45.7 / 52.0 | 63.2 / 56.1 / 48.9 / 56.1 |
+| VTR-VLM | Token reduction | 54.1 / 49.3 / 43.5 / 49.0 | 58.2 / 55.4 / 45.5 / 53.0 |
+| AdaReTaKe | Token reduction | 50.8 / 47.1 / 46.4 / 48.1 | 53.5 / 48.2 / 48.0 / 49.9 |
+| Q-Frame | Keyframe sampling | 53.5 / 48.5 / 40.7 / 47.6 | 59.0 / 52.1 / 41.9 / 51.0 |
+| Nar-KFC | Keyframe sampling | 56.7 / 50.5 / 43.7 / 50.3 | 60.2 / 54.1 / 48.9 / 54.4 |
 | MovieChat | Memory-based | 48.5 / 35.0 / 28.0 / 37.2 | 52.1 / 37.5 / 28.5 / 39.4 |
 | SGVC | Caption-based | 45.0 / 32.0 / 30.2 / 35.7 | 49.5 / 34.8 / 31.1 / 38.5 |
 | **BASS (Ours)** | **Graph-based** | **61.5 / 54.8 / 48.1 / 54.8** | **69.2 / 58.5 / 51.3 / 59.7** |
@@ -106,7 +106,7 @@ Accuracy (%) of visual-token-efficient methods under a budget of **8,192 visual 
 | FastV | – | 65.4 | 612.8 | 43.1 |
 | Q-Frame | – | 93.5 | 876.1 | 48.5 |
 | AdaReTaKe | 108.2 | 17.3 | 270.3 | 47.1 |
-| VTR-VLM | 147.4 | 13.5 | 273.9 | 53.3 |
+| VTR-VLM | 147.4 | 13.5 | 273.9 | 49.3 |
 | **BASS** | **40.0** | **6.5** | **100.9** | **54.8** |
 
 </details>
@@ -138,7 +138,7 @@ Model weights are pulled from the HuggingFace Hub on first use:
 | Vision encoder | [`openai/clip-vit-large-patch14`](https://huggingface.co/openai/clip-vit-large-patch14) |
 | Shot detector | [TransNetV2](https://github.com/soCzech/TransNetV2) (via `transnetv2-pytorch`) |
 
-Use `--model_path` and `--clip_path` to load local checkpoints instead; for the API backbones, `--model_path` selects the model version. All experiments in the paper were run on 4× NVIDIA A100 (40GB).
+Use `--model_path` and `--clip_path` to load local checkpoints instead; for the API backbones, `--model_path` selects the model version. All experiments in the paper were run on 4× NVIDIA A100 (80GB).
 
 ## 📁 Data Preparation
 
