@@ -63,7 +63,7 @@ BASS is a **training-free data access and query planning framework** for LMM-bas
 **Highlights**
 
 - **Reusable index.** The event graph is query-independent. It is built once per video and shared by all of the video's queries, so the offline cost is amortized.
-- **Sub-quadratic graph construction.** Semantic edges are found through an inverted index over visual words. In the paper this gives a 34× speedup over dense pairwise patch matching.
+- **Sub-quadratic graph construction.** Semantic edges are found through an inverted index over visual words. In the paper, this gives a 34× speedup over dense pairwise patch matching.
 - **Principled selection.** The planning objective is provably monotone and submodular, and each event is charged its exact visual-token cost.
 - **Model-agnostic.** No training or fine-tuning is needed. BASS works with open-source backbones (Qwen2.5-VL-7B, Qwen2-VL-72B) and proprietary ones (GPT-4o, Gemini 1.5 Pro).
 
@@ -71,7 +71,7 @@ BASS is a **training-free data access and query planning framework** for LMM-bas
 
 Accuracy (%) of visual-token-efficient methods under a budget of **8,192 visual tokens** (Table 1 of the paper).
 
-| Method | Type | Qwen2.5-VL-7B<br>VideoMME / VRBench / CinePile / **Avg.** | Qwen2-VL-72B<br>VideoMME / VRBench / CinePile / **Avg.** |
+| Method | Type | Qwen2.5-VL-7B<br>Video-MME / VRBench / CinePile / **Avg.** | Qwen2-VL-72B<br>Video-MME / VRBench / CinePile / **Avg.** |
 | :--- | :--- | :---: | :---: |
 | FastV | Token reduction | 52.3 / 43.1 / 38.4 / 44.6 | 56.5 / 45.5 / 41.6 / 47.9 |
 | DyCoke | Token reduction | 51.8 / 47.2 / 37.1 / 45.4 | 57.9 / 46.8 / 39.8 / 48.2 |
@@ -86,7 +86,7 @@ Accuracy (%) of visual-token-efficient methods under a budget of **8,192 visual 
 <details>
 <summary><b>Full-sequence references</b> (no visual-token budget)</summary>
 
-| Model | VideoMME | VRBench | CinePile | Avg. |
+| Model | Video-MME | VRBench | CinePile | Avg. |
 | :--- | ---: | ---: | ---: | ---: |
 | Gemini 1.5 Pro | 75.0 | 70.7 | 60.1 | 68.6 |
 | GPT-4o | 71.9 | 68.7 | 56.1 | 65.6 |
@@ -144,7 +144,7 @@ Use `--model_path` and `--clip_path` to load local checkpoints instead; for the 
 
 ```text
 dataset/
-├── VideoMME/
+├── Video-MME/
 │   └── videos/{videoID}.mp4
 ├── VRBench/
 │   ├── VRBench_eval.jsonl
@@ -235,7 +235,7 @@ Each experiment in Sec. 5 maps to the command below. `{a,b,...}` means one run p
 
 | Paper | Experiment | Command |
 | :--- | :--- | :--- |
-| Table 1 | Main results | `DATASET={VideoMME,VRBench,CinePile} BACKBONE={Qwen2.5-VL-7B,Qwen2-VL-72B} bash scripts/run.sh` |
+| Table 1 | Main results | `DATASET={Video-MME,VRBench,CinePile} BACKBONE={Qwen2.5-VL-7B,Qwen2-VL-72B} bash scripts/run.sh` |
 | Fig. 3 | w/o query relevance F<sub>rel</sub> | `bash scripts/run.sh --disable_relevance` |
 | Fig. 4 | w/o reachable information gain F<sub>reach</sub> | `bash scripts/run.sh --lambda_param 0` |
 | Fig. 5 | Cost-feasible random selection | `bash scripts/run.sh --planner random` |
