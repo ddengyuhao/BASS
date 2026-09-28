@@ -30,7 +30,7 @@ Yuping Wang<sup>1</sup>, Aoqian Zhang<sup>1</sup>, Ye Yuan<sup>1</sup>, Chenglia
   <img src="assets/framework.png" alt="Overall framework of BASS" width="95%">
 </p>
 
-BASS treats a long video as a *queryable event graph* instead of a flat sequence of visual tokens. It builds a reusable graph index offline, selects a budget-feasible subgraph per query by maximizing a monotone submodular objective, and executes the query along verified graph relations. Under the same budget of 8,192 visual tokens, BASS reaches the highest average accuracy among the evaluated token-efficient methods, and it uses over 90% fewer visual tokens than full-sequence inference.
+BASS treats a long video as a *queryable event graph* instead of a flat sequence of visual tokens. It builds a reusable graph index offline, selects a budget-feasible subgraph per query by maximizing a monotone submodular objective, and executes the query along verified graph relations. Under the same budget of 8,192 visual tokens, BASS reaches the highest average accuracy among the evaluated token-efficient methods.
 
 ## News
 
@@ -93,7 +93,7 @@ Accuracy (%) of visual-token-efficient methods under a budget of **8,192 visual 
 | InternVL2.5-78B | 72.1 | 53.5 | 54.6 | 60.1 |
 | Qwen2-VL-72B | 71.2 | 59.1 | 54.2 | 61.5 |
 | Qwen2.5-VL-7B | 65.1 | 56.5 | 52.6 | 58.1 |
-| LLaVA-NeXT-34B | 70.6 | 48.5 | 41.5 | 53.5 |
+| LLaVA-NeXT-34B | 52.0 | 48.5 | 41.5 | 47.3 |
 
 </details>
 
