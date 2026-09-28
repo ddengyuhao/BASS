@@ -144,7 +144,7 @@ Use `--model_path` and `--clip_path` to load local checkpoints instead; for the 
 
 ```text
 dataset/
-├── Video-MME/
+├── VideoMME/
 │   └── videos/{videoID}.mp4
 ├── VRBench/
 │   ├── VRBench_eval.jsonl
@@ -157,7 +157,7 @@ dataset/
 | Benchmark | Source | Scale | Notes |
 | :--- | :--- | :--- | :--- |
 | Video-MME | [lmms-lab/Video-MME](https://huggingface.co/datasets/lmms-lab/Video-MME) | 900 videos, 2,700 QA | Annotations load from the Hub; place videos in `VideoMME/videos/`, named by `videoID` |
-| VRBench | [OpenGVLab/VRBench](https://huggingface.co/datasets/OpenGVLab/VRBench) | 1,010 videos (avg. 1.6 h), 9,468 QA | Download `VRBench_eval.jsonl` and extract the video archives into `VRBench/videos/` |
+| VRBench | [OpenGVLab/VRBench](https://huggingface.co/datasets/OpenGVLab/VRBench) | 960 videos (avg. 1.6 h), 8,243 QA | Download `VRBench_eval.jsonl` and extract the video archives into `VRBench/videos/` |
 | CinePile | [tomg-group-umd/cinepile](https://huggingface.co/datasets/tomg-group-umd/cinepile) | 9,396 clips | Annotations load from the Hub; clips are downloaded with `yt-dlp` on first access |
 
 ## 🚀 Quick Start
@@ -235,7 +235,7 @@ Each experiment in Sec. 5 maps to the command below. `{a,b,...}` means one run p
 
 | Paper | Experiment | Command |
 | :--- | :--- | :--- |
-| Table 1 | Main results | `DATASET={Video-MME,VRBench,CinePile} BACKBONE={Qwen2.5-VL-7B,Qwen2-VL-72B} bash scripts/run.sh` |
+| Table 1 | Main results | `DATASET={VideoMME,VRBench,CinePile} BACKBONE={Qwen2.5-VL-7B,Qwen2-VL-72B} bash scripts/run.sh` |
 | Fig. 3 | w/o query relevance F<sub>rel</sub> | `bash scripts/run.sh --disable_relevance` |
 | Fig. 4 | w/o reachable information gain F<sub>reach</sub> | `bash scripts/run.sh --lambda_param 0` |
 | Fig. 5 | Cost-feasible random selection | `bash scripts/run.sh --planner random` |
@@ -245,7 +245,7 @@ Each experiment in Sec. 5 maps to the command below. `{a,b,...}` means one run p
 | Table 3 | Pairwise matching (PM) | `bash scripts/run.sh --edge_construction pairwise` |
 | Table 3 | BASS w/o weighting | `bash scripts/run.sh --uniform_word_weight` |
 | Fig. 7(a) | Sensitivity to λ | `bash scripts/run.sh --lambda_param {0,0.5,1.0,1.5,2.0}` |
-| Fig. 7(b) | Sensitivity to δ | `bash scripts/run.sh --delta {0.5,0.6,0.65,0.7,0.8}` |
+| Fig. 7(b) | Sensitivity to δ | `bash scripts/run.sh --delta {0.5,0.55,0.6,0.65,0.7,0.75,0.8}` |
 | Table 4 | Proprietary LMMs with BASS | `BACKBONE={GPT-4o,Gemini-1.5-Pro} bash scripts/run.sh` |
 | Table 4 | Proprietary LMMs with uniform sampling | `BACKBONE={GPT-4o,Gemini-1.5-Pro} bash scripts/run.sh --method Uniform` |
 | Fig. 8 | Accuracy vs. visual-token budget | `TOKEN_BUDGET={1024,2048,4096,8192,12288} bash scripts/run.sh` |
@@ -266,7 +266,7 @@ BASS/
 │   │   ├── execution.py      # Graph-guided execution pipeline
 │   │   └── uniform_sampling.py  # Uniform-sampling baseline (Table 4)
 │   ├── models/               # Qwen2.5-VL-7B / Qwen2-VL-72B / GPT-4o / Gemini backbones
-│   ├── data/                 # Video-MME / VRBench / CinePile loaders
+│   ├── data/                 # VideoMME / VRBench / CinePile loaders
 │   └── utils.py
 ├── scripts/
 │   ├── run.sh                # Multi-GPU evaluation
